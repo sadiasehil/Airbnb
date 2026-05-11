@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>NYC Airbnb Chord Diagram</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #0B132B;
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1 {
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  p {
+    color: #d1d5db;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  svg {
+    margin-top: 0px;
+  }
+
+  .group-label {
+    font-size: 11px;
+    fill: #F8FAFC;
+    font-weight: 600;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: #ffffff;
+    color: #111827;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    pointer-events: none;
+    opacity: 0;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    text-align: left;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Room Type Mix in Top NYC Airbnb Neighborhoods</h1>
+<p>Thicker ribbons show more Airbnb listings between Neighborhoods and room types.</p>
+
+<div id="chart"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+
+const data = [{"source":"Astoria","target":"Entire home\/apt","value":128},{"source":"Astoria","target":"Private room","value":184},{"source":"Astoria","target":"Shared room","value":6},{"source":"Bedford-Stuyvesant","target":"Entire home\/apt","value":748},{"source":"Bedford-Stuyvesant","target":"Private room","value":586},{"source":"Bedford-Stuyvesant","target":"Shared room","value":17},{"source":"Bushwick","target":"Entire home\/apt","value":292},{"source":"Bushwick","target":"Private room","value":326},{"source":"Bushwick","target":"Shared room","value":3},{"source":"Canarsie","target":"Entire home\/apt","value":82},{"source":"Canarsie","target":"Private room","value":93},{"source":"Canarsie","target":"Shared room","value":6},{"source":"Chelsea","target":"Entire home\/apt","value":276},{"source":"Chelsea","target":"Hotel room","value":2},{"source":"Chelsea","target":"Private room","value":76},{"source":"Chelsea","target":"Shared room","value":4},{"source":"Clinton Hill","target":"Entire home\/apt","value":121},{"source":"Clinton Hill","target":"Private room","value":53},{"source":"Clinton Hill","target":"Shared room","value":1},{"source":"Crown Heights","target":"Entire home\/apt","value":373},{"source":"Crown Heights","target":"Private room","value":238},{"source":"Crown Heights","target":"Shared room","value":5},{"source":"East Flatbush","target":"Entire home\/apt","value":199},{"source":"East Flatbush","target":"Private room","value":154},{"source":"East Flatbush","target":"Shared room","value":7},{"source":"East Harlem","target":"Entire home\/apt","value":206},{"source":"East Harlem","target":"Private room","value":133},{"source":"East Harlem","target":"Shared room","value":3},{"source":"East New York","target":"Entire home\/apt","value":142},{"source":"East New York","target":"Private room","value":72},{"source":"East New York","target":"Shared room","value":4},{"source":"East Village","target":"Entire home\/apt","value":297},{"source":"East Village","target":"Private room","value":101},{"source":"East Village","target":"Shared room","value":3},{"source":"Financial District","target":"Entire home\/apt","value":145},{"source":"Financial District","target":"Private room","value":53},{"source":"Financial District","target":"Shared room","value":4},{"source":"Flatbush","target":"Entire home\/apt","value":134},{"source":"Flatbush","target":"Private room","value":117},{"source":"Flatbush","target":"Shared room","value":3},{"source":"Flushing","target":"Entire home\/apt","value":121},{"source":"Flushing","target":"Private room","value":157},{"source":"Flushing","target":"Shared room","value":2},{"source":"Greenpoint","target":"Entire home\/apt","value":210},{"source":"Greenpoint","target":"Hotel room","value":4},{"source":"Greenpoint","target":"Private room","value":70},{"source":"Harlem","target":"Entire home\/apt","value":492},{"source":"Harlem","target":"Hotel room","value":1},{"source":"Harlem","target":"Private room","value":459},{"source":"Harlem","target":"Shared room","value":15},{"source":"Hell's Kitchen","target":"Entire home\/apt","value":580},{"source":"Hell's Kitchen","target":"Private room","value":254},{"source":"Hell's Kitchen","target":"Shared room","value":14},{"source":"Jamaica","target":"Entire home\/apt","value":106},{"source":"Jamaica","target":"Private room","value":104},{"source":"Jamaica","target":"Shared room","value":4},{"source":"Kips Bay","target":"Entire home\/apt","value":156},{"source":"Kips Bay","target":"Private room","value":33},{"source":"Kips Bay","target":"Shared room","value":1},{"source":"Long Island City","target":"Entire home\/apt","value":111},{"source":"Long Island City","target":"Hotel room","value":7},{"source":"Long Island City","target":"Private room","value":123},{"source":"Long Island City","target":"Shared room","value":2},{"source":"Lower East Side","target":"Entire home\/apt","value":226},{"source":"Lower East Side","target":"Hotel room","value":9},{"source":"Lower East Side","target":"Private room","value":82},{"source":"Lower East Side","target":"Shared room","value":1},{"source":"Midtown","target":"Entire home\/apt","value":587},{"source":"Midtown","target":"Hotel room","value":23},{"source":"Midtown","target":"Private room","value":270},{"source":"Midtown","target":"Shared room","value":2},{"source":"Murray Hill","target":"Entire home\/apt","value":160},{"source":"Murray Hill","target":"Hotel room","value":11},{"source":"Murray Hill","target":"Private room","value":27},{"source":"Park Slope","target":"Entire home\/apt","value":113},{"source":"Park Slope","target":"Private room","value":45},{"source":"Park Slope","target":"Shared room","value":3},{"source":"Prospect-Lefferts Gardens","target":"Entire home\/apt","value":123},{"source":"Prospect-Lefferts Gardens","target":"Private room","value":75},{"source":"Prospect-Lefferts Gardens","target":"Shared room","value":2},{"source":"Upper East Side","target":"Entire home\/apt","value":656},{"source":"Upper East Side","target":"Private room","value":107},{"source":"Upper East Side","target":"Shared room","value":5},{"source":"Upper West Side","target":"Entire home\/apt","value":426},{"source":"Upper West Side","target":"Hotel room","value":4},{"source":"Upper West Side","target":"Private room","value":171},{"source":"Upper West Side","target":"Shared room","value":3},{"source":"Washington Heights","target":"Entire home\/apt","value":108},{"source":"Washington Heights","target":"Private room","value":144},{"source":"Washington Heights","target":"Shared room","value":1},{"source":"West Village","target":"Entire home\/apt","value":167},{"source":"West Village","target":"Hotel room","value":11},{"source":"West Village","target":"Private room","value":18},{"source":"Williamsburg","target":"Entire home\/apt","value":574},{"source":"Williamsburg","target":"Private room","value":360},{"source":"Williamsburg","target":"Shared room","value":5}];
+
+data.forEach(d => d.value = +d.value);
+
+const names = Array.from(new Set(data.flatMap(d => [d.source, d.target])));
+const index = new Map(names.map((name, i) => [name, i]));
+
+const matrix = Array.from({length: names.length}, () => Array(names.length).fill(0));
+
+data.forEach(d => {
+  matrix[index.get(d.source)][index.get(d.target)] = d.value;
+  matrix[index.get(d.target)][index.get(d.source)] = d.value;
+});
+
+// Smaller chart so labels do not get cut off
+const width = 680;
+const height = 680;
+const outerRadius = Math.min(width, height) * 0.5 - 85;
+const innerRadius = outerRadius - 22;
+
+// Custom color palette
+const colorMap = {
+  "Bronx": "#E45756",
+  "Brooklyn": "#4C78A8",
+  "Manhattan": "#59A14F",
+  "Queens": "#B279A2",
+  "Staten Island": "#F28E2B",
+
+  "Entire home/apt": "#F4B400",
+  "Private room": "#2EC4B6",
+  "Shared room": "#9AA0A6",
+  "Hotel room": "#7E57C2"
+};
+
+const color = name => colorMap[name] || "#CBD5E1";
+
+const chord = d3.chord()
+  .padAngle(0.06)
+  .sortSubgroups(d3.descending);
+
+const arc = d3.arc()
+  .innerRadius(innerRadius)
+  .outerRadius(outerRadius);
+
+const ribbon = d3.ribbon()
+  .radius(innerRadius);
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height)
+  .append("g")
+  .attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+const chords = chord(matrix);
+const tooltip = d3.select("#tooltip");
+
+// Outer group arcs
+const group = svg.append("g")
+  .selectAll("g")
+  .data(chords.groups)
+  .join("g");
+
+group.append("path")
+  .attr("fill", d => color(names[d.index]))
+  .attr("stroke", d => d3.rgb(color(names[d.index])).darker(0.6))
+  .attr("stroke-width", 1.2)
+  .attr("d", arc)
+  .on("mouseover", function(event, d) {
+    d3.select(this).attr("opacity", 0.8);
+    tooltip
+      .style("opacity", 1)
+      .html(
+        "<strong>" + names[d.index] + "</strong><br>" +
+        "Total listings: " + d.value.toLocaleString()
+      );
+  })
+  .on("mousemove", function(event) {
+    tooltip
+      .style("left", (event.pageX + 15) + "px")
+      .style("top", (event.pageY - 20) + "px");
+  })
+  .on("mouseout", function() {
+    d3.select(this).attr("opacity", 1);
+    tooltip.style("opacity", 0);
+  });
+
+// Labels
+group.append("text")
+  .each(d => { d.angle = (d.startAngle + d.endAngle) / 2; })
+  .attr("dy", ".35em")
+  .attr("class", "group-label")
+  .attr("transform", d => `
+    rotate(${(d.angle * 180 / Math.PI - 90)})
+    translate(${outerRadius + 18})
+    ${d.angle > Math.PI ? "rotate(180)" : ""}
+  `)
+  .style("text-anchor", d => d.angle > Math.PI ? "end" : "start")
+  .text(d => names[d.index]);
+
+// Ribbons
+svg.append("g")
+  .selectAll("path")
+  .data(chords)
+  .join("path")
+  .attr("d", ribbon)
+  .attr("fill", d => color(names[d.source.index]))
+  .attr("fill-opacity", 0.58)
+  .attr("stroke", "rgba(255,255,255,0.18)")
+  .attr("stroke-width", 0.4)
+  .on("mouseover", function(event, d) {
+    d3.select(this)
+      .attr("fill-opacity", 0.95)
+      .attr("stroke", "rgba(255,255,255,0.45)")
+      .attr("stroke-width", 0.8);
+
+    tooltip
+      .style("opacity", 1)
+      .html(
+        "<strong>" + names[d.source.index] + " ↔ " + names[d.target.index] + "</strong><br>" +
+        "Listings: " + d.source.value.toLocaleString()
+      );
+  })
+  .on("mousemove", function(event) {
+    tooltip
+      .style("left", (event.pageX + 15) + "px")
+      .style("top", (event.pageY - 20) + "px");
+  })
+  .on("mouseout", function() {
+    d3.select(this)
+      .attr("fill-opacity", 0.58)
+      .attr("stroke", "rgba(255,255,255,0.18)")
+      .attr("stroke-width", 0.4);
+
+    tooltip.style("opacity", 0);
+  });
+
+</script>
+
+</body>
+</html>

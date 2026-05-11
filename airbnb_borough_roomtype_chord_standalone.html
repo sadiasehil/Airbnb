@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>NYC Airbnb Chord Diagram</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #0B132B;
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1 {
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  p {
+    color: #d1d5db;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  svg {
+    margin-top: 0px;
+  }
+
+  .group-label {
+    font-size: 11px;
+    fill: #F8FAFC;
+    font-weight: 600;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: #ffffff;
+    color: #111827;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    pointer-events: none;
+    opacity: 0;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    text-align: left;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>How Room Types Connect Across NYC Boroughs</h1>
+<p>Thicker ribbons show more Airbnb listings between boroughs and room types.</p>
+
+<div id="chart"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+
+const data = [{"source":"Bronx","target":"Entire home\/apt","value":390},{"source":"Bronx","target":"Private room","value":420},{"source":"Bronx","target":"Shared room","value":8},{"source":"Brooklyn","target":"Entire home\/apt","value":4108},{"source":"Brooklyn","target":"Hotel room","value":4},{"source":"Brooklyn","target":"Private room","value":2799},{"source":"Brooklyn","target":"Shared room","value":75},{"source":"Manhattan","target":"Entire home\/apt","value":5165},{"source":"Manhattan","target":"Hotel room","value":98},{"source":"Manhattan","target":"Private room","value":2284},{"source":"Manhattan","target":"Shared room","value":58},{"source":"Queens","target":"Entire home\/apt","value":1571},{"source":"Queens","target":"Hotel room","value":7},{"source":"Queens","target":"Private room","value":1589},{"source":"Queens","target":"Shared room","value":38},{"source":"Staten Island","target":"Entire home\/apt","value":155},{"source":"Staten Island","target":"Private room","value":107},{"source":"Staten Island","target":"Shared room","value":4}];
+
+data.forEach(d => d.value = +d.value);
+
+const names = Array.from(new Set(data.flatMap(d => [d.source, d.target])));
+const index = new Map(names.map((name, i) => [name, i]));
+
+const matrix = Array.from({length: names.length}, () => Array(names.length).fill(0));
+
+data.forEach(d => {
+  matrix[index.get(d.source)][index.get(d.target)] = d.value;
+  matrix[index.get(d.target)][index.get(d.source)] = d.value;
+});
+
+// Smaller chart so labels do not get cut off
+const width = 680;
+const height = 680;
+const outerRadius = Math.min(width, height) * 0.5 - 85;
+const innerRadius = outerRadius - 22;
+
+// Custom color palette
+const colorMap = {
+  "Bronx": "#E45756",
+  "Brooklyn": "#4C78A8",
+  "Manhattan": "#59A14F",
+  "Queens": "#B279A2",
+  "Staten Island": "#F28E2B",
+
+  "Entire home/apt": "#F4B400",
+  "Private room": "#2EC4B6",
+  "Shared room": "#9AA0A6",
+  "Hotel room": "#7E57C2"
+};
+
+const color = name => colorMap[name] || "#CBD5E1";
+
+const chord = d3.chord()
+  .padAngle(0.06)
+  .sortSubgroups(d3.descending);
+
+const arc = d3.arc()
+  .innerRadius(innerRadius)
+  .outerRadius(outerRadius);
+
+const ribbon = d3.ribbon()
+  .radius(innerRadius);
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height)
+  .append("g")
+  .attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+const chords = chord(matrix);
+const tooltip = d3.select("#tooltip");
+
+// Outer group arcs
+const group = svg.append("g")
+  .selectAll("g")
+  .data(chords.groups)
+  .join("g");
+
+group.append("path")
+  .attr("fill", d => color(names[d.index]))
+  .attr("stroke", d => d3.rgb(color(names[d.index])).darker(0.6))
+  .attr("stroke-width", 1.2)
+  .attr("d", arc)
+  .on("mouseover", function(event, d) {
+    d3.select(this).attr("opacity", 0.8);
+    tooltip
+      .style("opacity", 1)
+      .html(
+        "<strong>" + names[d.index] + "</strong><br>" +
+        "Total listings: " + d.value.toLocaleString()
+      );
+  })
+  .on("mousemove", function(event) {
+    tooltip
+      .style("left", (event.pageX + 15) + "px")
+      .style("top", (event.pageY - 20) + "px");
+  })
+  .on("mouseout", function() {
+    d3.select(this).attr("opacity", 1);
+    tooltip.style("opacity", 0);
+  });
+
+// Labels
+group.append("text")
+  .each(d => { d.angle = (d.startAngle + d.endAngle) / 2; })
+  .attr("dy", ".35em")
+  .attr("class", "group-label")
+  .attr("transform", d => `
+    rotate(${(d.angle * 180 / Math.PI - 90)})
+    translate(${outerRadius + 18})
+    ${d.angle > Math.PI ? "rotate(180)" : ""}
+  `)
+  .style("text-anchor", d => d.angle > Math.PI ? "end" : "start")
+  .text(d => names[d.index]);
+
+// Ribbons
+svg.append("g")
+  .selectAll("path")
+  .data(chords)
+  .join("path")
+  .attr("d", ribbon)
+  .attr("fill", d => color(names[d.source.index]))
+  .attr("fill-opacity", 0.58)
+  .attr("stroke", "rgba(255,255,255,0.18)")
+  .attr("stroke-width", 0.4)
+  .on("mouseover", function(event, d) {
+    d3.select(this)
+      .attr("fill-opacity", 0.95)
+      .attr("stroke", "rgba(255,255,255,0.45)")
+      .attr("stroke-width", 0.8);
+
+    tooltip
+      .style("opacity", 1)
+      .html(
+        "<strong>" + names[d.source.index] + " ↔ " + names[d.target.index] + "</strong><br>" +
+        "Listings: " + d.source.value.toLocaleString()
+      );
+  })
+  .on("mousemove", function(event) {
+    tooltip
+      .style("left", (event.pageX + 15) + "px")
+      .style("top", (event.pageY - 20) + "px");
+  })
+  .on("mouseout", function() {
+    d3.select(this)
+      .attr("fill-opacity", 0.58)
+      .attr("stroke", "rgba(255,255,255,0.18)")
+      .attr("stroke-width", 0.4);
+
+    tooltip.style("opacity", 0);
+  });
+
+</script>
+
+</body>
+</html>
