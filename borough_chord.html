@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>NYC Airbnb Borough Chord Diagram</title>
+<title>NYC Airbnb Chord Diagram</title>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 
 <style>
@@ -17,13 +17,13 @@
 
   h1 {
     margin-top: 20px;
-    font-size: 18px;
+    font-size: 24px;
     font-weight: 700;
   }
 
   p {
     color: #d1d5db;
-    font-size: 9px;
+    font-size: 14px;
     margin-bottom: 5px;
   }
 
@@ -32,7 +32,7 @@
   }
 
   .group-label {
-    font-size: 9px;
+    font-size: 11px;
     fill: #F8FAFC;
     font-weight: 600;
   }
@@ -43,13 +43,11 @@
     color: #111827;
     padding: 9px 12px;
     border-radius: 8px;
-    font-size: 9px;
+    font-size: 13px;
     pointer-events: none;
     opacity: 0;
     box-shadow: 0 4px 14px rgba(0,0,0,0.35);
     text-align: left;
-    max-width: 240px;
-    line-height: 1.25;
   }
 </style>
 </head>
@@ -64,7 +62,7 @@
 
 <script>
 
-const data = [{"source":"Bronx","target":"Entire home/apt","value":390},{"source":"Bronx","target":"Private room","value":420},{"source":"Bronx","target":"Shared room","value":8},{"source":"Brooklyn","target":"Entire home/apt","value":4108},{"source":"Brooklyn","target":"Hotel room","value":4},{"source":"Brooklyn","target":"Private room","value":2799},{"source":"Brooklyn","target":"Shared room","value":75},{"source":"Manhattan","target":"Entire home/apt","value":5165},{"source":"Manhattan","target":"Hotel room","value":98},{"source":"Manhattan","target":"Private room","value":2284},{"source":"Manhattan","target":"Shared room","value":58},{"source":"Queens","target":"Entire home/apt","value":1571},{"source":"Queens","target":"Hotel room","value":7},{"source":"Queens","target":"Private room","value":1589},{"source":"Queens","target":"Shared room","value":38},{"source":"Staten Island","target":"Entire home/apt","value":155},{"source":"Staten Island","target":"Private room","value":107},{"source":"Staten Island","target":"Shared room","value":4}];
+const data = [{"source":"Bronx","target":"Entire home\/apt","value":390},{"source":"Bronx","target":"Private room","value":420},{"source":"Bronx","target":"Shared room","value":8},{"source":"Brooklyn","target":"Entire home\/apt","value":4108},{"source":"Brooklyn","target":"Hotel room","value":4},{"source":"Brooklyn","target":"Private room","value":2799},{"source":"Brooklyn","target":"Shared room","value":75},{"source":"Manhattan","target":"Entire home\/apt","value":5165},{"source":"Manhattan","target":"Hotel room","value":98},{"source":"Manhattan","target":"Private room","value":2284},{"source":"Manhattan","target":"Shared room","value":58},{"source":"Queens","target":"Entire home\/apt","value":1571},{"source":"Queens","target":"Hotel room","value":7},{"source":"Queens","target":"Private room","value":1589},{"source":"Queens","target":"Shared room","value":38},{"source":"Staten Island","target":"Entire home\/apt","value":155},{"source":"Staten Island","target":"Private room","value":107},{"source":"Staten Island","target":"Shared room","value":4}];
 
 data.forEach(d => d.value = +d.value);
 
@@ -78,7 +76,7 @@ data.forEach(d => {
   matrix[index.get(d.target)][index.get(d.source)] = d.value;
 });
 
-// Smaller chart so labels do not get cut off
+// Original chart size
 const width = 680;
 const height = 680;
 const outerRadius = Math.min(width, height) * 0.5 - 85;
@@ -209,3 +207,4 @@ svg.append("g")
 
 </body>
 </html>
+
