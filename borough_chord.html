@@ -17,13 +17,13 @@
 
   h1 {
     margin-top: 20px;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
   }
 
   p {
     color: #d1d5db;
-    font-size: 14px;
+    font-size: 13px;
     margin-bottom: 5px;
   }
 
@@ -41,9 +41,11 @@
     position: absolute;
     background: #ffffff;
     color: #111827;
-    padding: 9px 12px;
+    padding: 12px 14px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 15px;
+    line-height: 1.45;
+    max-width: 310px;
     pointer-events: none;
     opacity: 0;
     box-shadow: 0 4px 14px rgba(0,0,0,0.35);
@@ -55,7 +57,7 @@
 <body>
 
 <h1>Which room types dominate each NYC borough?</h1>
-<p>Thicker ribbons represent more Airbnb listings between boroughs and room types.</p>
+<p>Wider ribbons mean more listings for that room type in that borough.</p>
 
 <div id="chart"></div>
 <div class="tooltip" id="tooltip"></div>
@@ -78,7 +80,7 @@ data.forEach(d => {
 
 // Original chart size
 const width = 680;
-const height = 680;
+const height = 620;
 const outerRadius = Math.min(width, height) * 0.5 - 85;
 const innerRadius = outerRadius - 22;
 
@@ -114,7 +116,7 @@ const svg = d3.select("#chart")
   .attr("width", width)
   .attr("height", height)
   .append("g")
-  .attr("transform", `translate(${width / 2}, ${height / 2})`);
+  .attr("transform", `translate(${width / 2}, ${height / 2 + 10})`);
 
 const chords = chord(matrix);
 const tooltip = d3.select("#tooltip");
@@ -186,7 +188,7 @@ svg.append("g")
         "<strong>" + names[d.source.index] + " ↔ " + names[d.target.index] + "</strong><br>" +
         "Listings: " + d.source.value.toLocaleString() + "<br><br>" +
         "<span style='color:#6B7280;'>Market context:</span><br>" +
-        "Thicker ribbons represent more listings between this borough and room type."
+        "The wider the ribbon, the more listings there are for that room type in that borough."
       );
   })
   .on("mousemove", function(event) {
