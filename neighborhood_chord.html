@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,18 +14,17 @@
     text-align: center;
     margin: 0;
     padding: 0;
-    font-size: 9px;
   }
 
   h1 {
     margin-top: 20px;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 700;
   }
 
   p {
     color: #d1d5db;
-    font-size: 9px;
+    font-size: 13px;
     margin-bottom: 5px;
   }
 
@@ -33,7 +33,7 @@
   }
 
   .group-label {
-    font-size: 9px;
+    font-size: 11px;
     fill: #F8FAFC;
     font-weight: 600;
   }
@@ -42,11 +42,11 @@
     position: absolute;
     background: #ffffff;
     color: #111827;
-    padding: 10px 13px;
+    padding: 12px 14px;
     border-radius: 8px;
-    font-size: 9px;
-    line-height: 1.35;
-    max-width: 260px;
+    font-size: 15px;
+    line-height: 1.45;
+    max-width: 310px;
     pointer-events: none;
     opacity: 0;
     box-shadow: 0 4px 14px rgba(0,0,0,0.35);
@@ -63,7 +63,7 @@
 <body>
 
 <h1>Which room types dominate top NYC neighborhoods?</h1>
-<h3>Thicker ribbons represent more Airbnb listings between neighborhoods and room types.</h3>
+<p>Wider ribbons mean more listings for that room type in that neighborhood.</p>
 
 <div id="chart"></div>
 <div class="tooltip" id="tooltip"></div>
@@ -86,7 +86,7 @@ data.forEach(d => {
 
 // Smaller chart so labels do not get cut off
 const width = 680;
-const height = 680;
+const height = 620;
 const outerRadius = Math.min(width, height) * 0.5 - 85;
 const innerRadius = outerRadius - 22;
 
@@ -122,7 +122,7 @@ const svg = d3.select("#chart")
   .attr("width", width)
   .attr("height", height)
   .append("g")
-  .attr("transform", `translate(${width / 2}, ${height / 2})`);
+  .attr("transform", `translate(${width / 2}, ${height / 2 + 10})`);
 
 const chords = chord(matrix);
 const tooltip = d3.select("#tooltip");
@@ -194,7 +194,7 @@ svg.append("g")
         "<strong>" + names[d.source.index] + " ↔ " + names[d.target.index] + "</strong><br>" +
         "Listings: " + d.source.value.toLocaleString() + "<br><br>" +
         "<span class='tooltip-heading'>Market context:</span><br>" +
-        "Thicker ribbons represent more listings between this neighborhood and room type."
+        "The wider the ribbon, the more listings there are for that room type in that neighborhood."
       );
   })
   .on("mousemove", function(event) {
@@ -215,4 +215,3 @@ svg.append("g")
 
 </body>
 </html>
-
